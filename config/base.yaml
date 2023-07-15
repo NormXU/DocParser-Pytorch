@@ -1,0 +1,69 @@
+name: docparser-base # experiment name
+model:
+  type: DocParser
+  pretrained_model_name_or_path: /models
+  max_length: 1024      # the max input length of docparser
+  image_size: [2560, 1920]  # the input image size of docparser
+
+  model_path: ~  # path to a certain checkpoint
+  load_strict: true # whether to strictly load the checkpoint
+
+  # training precision
+  mixed_precision: "fp16" # "["no", "fp16", "bf16] # use torch native amp
+
+  tokenizer_args:
+    pretrained_model_name_or_path: naver-clova-ix/donut-base # we borrow tokenizer & image processor from donut
+  extra_args: {}
+
+predictor:
+  img_paths:
+    -
+  save_dir: /data/data/cache
+
+trainer:
+  start_global_step: -1 # start training from a certain global step; -1 means no starting global step is set
+  resume_flag: false  # whether to resume the training from a certain checkpoint
+  random_seed: ~
+  grad_clip: 1.0
+  epochs: 5
+
+  # tensorboard configuration
+  save_dir: /logs/docparser
+  tensorboard_dir: /logs/docparser/tensorboard
+
+  # display configuration
+  save_epoch_freq: 1
+  save_step_freq: 800
+  print_freq: 20
+
+  # gradient configuration
+  grad_accumulate: 1 # gradient accumulation
+
+  # optimizer configuration
+  optimizer:
+    optimizer_type: "adamw"
+    lr: 1.0e-04
+    # layer_decay: 0.75
+    weight_decay: 0.05
+    beta1: 0.9
+    beta2: 0.98
+    eps: 1.0e-6
+
+  # scheduler configuration
+  scheduler:
+    scheduler_type: "cosine"
+    warmup_steps: 2000
+    warmup_epochs: 0
+
+datasets:
+  train:
+    dataset:
+      type: DocParser
+      task_start_token: <ocr_parser>
+      data_root:
+        - # put your dataset path here
+    num_workers: 0
+    batch_size: 1  # global batch = bz * num_gpu * grad
+    shuffle: true
+    collate_fn:
+      type: DataCollatorForDocParserDataset

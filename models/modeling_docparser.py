@@ -23,8 +23,8 @@ from transformers.utils import (
     add_start_docstrings_to_model_forward,
     logging,
 )
-from .docparser.configuration_docparser import DocParserConfig
-from .docparser.convnext import ConvNeXt, CNBlockConfig
+from .configuration_docparser import DocParserConfig
+from .convnext import ConvNeXt, CNBlockConfig
 
 logger = logging.get_logger(__name__)
 
