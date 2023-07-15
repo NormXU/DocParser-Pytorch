@@ -20,8 +20,8 @@ pip install requirements.txt
 The dataset should be processed into the following format
 ```json
 {
-  "filepath": xxx, // path to image folder
-  "filename": xxx, // image name
+  "filepath": "path/to/image/folder", // path to image folder
+  "filename": "file_name", // file name
   "extract_info": {
     "ocr_info": [
       {
