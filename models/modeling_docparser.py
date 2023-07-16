@@ -121,7 +121,8 @@ def window_partition(input_feature, window_size):
     input_feature = input_feature.view(
         batch_size, height // window_size[0], window_size[0], width // window_size[1], window_size[1], num_channels
     )
-    windows = input_feature.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size[0], window_size[1], num_channels)
+    windows = input_feature.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size[0], window_size[1],
+                                                                        num_channels)
     return windows
 
 
@@ -131,7 +132,8 @@ def window_reverse(windows, window_size, height, width):
     Merges windows to produce higher resolution features.
     """
     num_channels = windows.shape[-1]
-    windows = windows.view(-1, height // window_size[0], width // window_size[1], window_size[0], window_size[1], num_channels)
+    windows = windows.view(-1, height // window_size[0], width // window_size[1], window_size[0], window_size[1],
+                           num_channels)
     windows = windows.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, height, width, num_channels)
     return windows
 
@@ -177,12 +179,12 @@ class DocParserPatchEmbeddings(nn.Module):
         self.patch_embedding = nn.Sequential(
             ConvBNLayer(
                 in_channels=num_channels,
-                out_channels=hidden_size//2,
+                out_channels=hidden_size // 2,
                 kernel_size=kernel_size,
                 stride_size=stride_size,
                 padding=1),
             ConvBNLayer(
-                in_channels=hidden_size//2,
+                in_channels=hidden_size // 2,
                 out_channels=hidden_size,
                 kernel_size=kernel_size,
                 stride_size=stride_size,
@@ -210,7 +212,8 @@ class DocParserPatchMerging(nn.Module):
             Normalization layer class.
     """
 
-    def __init__(self, input_resolution: Tuple[int], dim: int, dim_out: int, norm_layer: nn.Module = nn.LayerNorm) -> None:
+    def __init__(self, input_resolution: Tuple[int], dim: int, dim_out: int,
+                 norm_layer: nn.Module = nn.LayerNorm) -> None:
         super().__init__()
         self.input_resolution = input_resolution
         self.dim = dim
@@ -552,7 +555,8 @@ class DocParserLayer(nn.Module):
         _, height_pad, width_pad, _ = hidden_states.shape
         # cyclic shift
         if isinstance(self.shift_size, list):
-            shifted_hidden_states = torch.roll(hidden_states, shifts=(-self.shift_size[0], -self.shift_size[1]), dims=(1, 2))
+            shifted_hidden_states = torch.roll(hidden_states, shifts=(-self.shift_size[0], -self.shift_size[1]),
+                                               dims=(1, 2))
         else:
             shifted_hidden_states = hidden_states
 
@@ -574,7 +578,8 @@ class DocParserLayer(nn.Module):
 
         # reverse cyclic shift
         if isinstance(self.shift_size, list) > 0:
-            attention_windows = torch.roll(shifted_windows, shifts=(self.shift_size[0], self.shift_size[1]), dims=(1, 2))
+            attention_windows = torch.roll(shifted_windows, shifts=(self.shift_size[0], self.shift_size[1]),
+                                           dims=(1, 2))
         else:
             attention_windows = shifted_windows
 
@@ -670,7 +675,8 @@ class DocParserConvNeXtEncoder(nn.Module):
                           num_layers=conv_depth[i_layer],
                           stride=stride_size[i_layer]
                           )
-            for i_layer in range(conv_depth_num_layers)])
+            for i_layer in range(conv_depth_num_layers)],
+            stochastic_depth_prob=0.1)
 
     def forward(
             self,
@@ -695,7 +701,8 @@ class DocParserEncoder(nn.Module):
                 config=config,
                 window_size=config.window_size[i_layer],
                 dim=int(swin_embed_dim[i_layer]),
-                dim_out=int(swin_embed_dim[i_layer + 1]) if i_layer < swin_depth_num_layers - 1 else int(swin_embed_dim[i_layer]),
+                dim_out=int(swin_embed_dim[i_layer + 1]) if i_layer < swin_depth_num_layers - 1 else int(
+                    swin_embed_dim[i_layer]),
                 input_resolution=(grid_size[0], grid_size[1] // (2 ** i_layer)),
                 depth=swin_depth[i_layer],
                 num_heads=config.num_heads[i_layer],
@@ -953,4 +960,3 @@ class DocParserModel(DocParserPreTrainedModel):
             attentions=encoder_outputs.attentions,
             reshaped_hidden_states=encoder_outputs.reshaped_hidden_states,
         )
-

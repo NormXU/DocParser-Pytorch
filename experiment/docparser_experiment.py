@@ -145,6 +145,7 @@ class DocParserExperiment(BaseExperiment):
         # during pre-training, a larger image size was used; for fine-tuning,
         # we update max_length of the decoder (for generation)
         config.decoder.max_length = model_args['max_length']
+        config.decoder.decoder_layers = model_args['decoder_layers']
         model = VisionEncoderDecoderModel(config=config)
         logger.info("init weight from pretrained model:{}".format(model_args["pretrained_model_name_or_path"]))
         model.decoder.resize_token_embeddings(len(self.processor.tokenizer))

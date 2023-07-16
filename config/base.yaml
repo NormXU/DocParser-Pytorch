@@ -2,8 +2,11 @@ name: docparser-base # experiment name
 model:
   type: DocParser
   pretrained_model_name_or_path: /models
-  max_length: 1024      # the max input length of docparser
+  # encoder
   image_size: [2560, 1920]  # the input image size of docparser
+  # decoder
+  max_length: 1024      # the max input length of docparser
+  decoder_layers: 2   # the decoder layer
 
   model_path: ~  # path to a certain checkpoint
   load_strict: true # whether to strictly load the checkpoint
