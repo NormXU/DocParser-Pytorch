@@ -42,7 +42,6 @@ class BaseExperiment(object):
     """
 
     def predict(self, **kwargs):
-        # ADD 接入平台的算法，考虑到并发性，预测相关参数优先从request_property中拿，而不是从self参数中拿
         request_property = kwargs.get('request_property')
         pass
 
@@ -56,7 +55,6 @@ class BaseExperiment(object):
         pass
 
     def _step_backward(self, loss, **kwargs):
-        # ADD grad norm和clip都不在这一步做
         if self.use_torch_amp:
             self.mixed_scaler.scale(loss).backward()
         else:
@@ -74,7 +72,6 @@ class BaseExperiment(object):
         return current_lr
 
     def _step_optimizer(self, **kwargs):
-        # ADD lr_scale，计算grad norm,clip在这里
         params_to_clip = (itertools.chain(self.model.parameters()))
         for param_group in self.optimizer.param_groups:
             if "lr_scale" in param_group:
@@ -116,7 +113,6 @@ class BaseExperiment(object):
             trainer_args = config["trainer"]
             trainer_args['save_dir'] = get_absolute_file_path(trainer_args.get("save_dir"))
             os.makedirs(trainer_args['save_dir'], exist_ok=True)
-            # 存储训练的yml，用于复现训练
             save_params(trainer_args['save_dir'], config)
             train_log_path = os.path.join(trainer_args['save_dir'], "{}.log".format(config['name']))
             file_handler = logging.FileHandler(train_log_path)
@@ -163,7 +159,7 @@ class BaseExperiment(object):
             torch.cuda.set_device(int(device_id))
             self.args.device.is_master = True
             self.args.device.is_distributed = False
-            if self.args.model.mixed_precision in ["fp16", "bp16"]:
+            if self.args.model.mixed_precision in ["fp16", "bf16"]:
                 # ADD mixed_precision_flag改为use_torch_amp
                 self.use_torch_amp = True
                 self.weight_dtype = torch.float16 if self.args.model.mixed_precision == "fp16" else torch.bfloat16
@@ -231,7 +227,6 @@ class BaseExperiment(object):
             self.args.trainer.start_epoch = 0
             self.args.trainer.start_global_step = 0
             if self.args.trainer.resume_flag and 'model_path' in self.args.model and self.args.model.model_path is not None:
-                # ADD resume
                 resume_path = self.args.model.model_path.replace('.pth', '_resume.pth')
                 if os.path.exists(resume_path):
                     resume_checkpoint = torch.load(resume_path)
@@ -372,7 +367,6 @@ class BaseExperiment(object):
 
         return data_loader
 
-    # 初始化 accelerator
     def prepare_accelerator(self):
         if self.accelerator is not None:
             self.model, self.optimizer, self.train_data_loader, self.scheduler = self.accelerator.prepare(
@@ -429,13 +423,11 @@ class BaseExperiment(object):
             logger.info(message)
             result = self.evaluate(global_eval_step=global_eval_step)
             global_eval_step, acc = result['global_eval_step'], result['acc']
-            # ADD is_master判断移到这里
             if (not self.args.trainer.save_best or (self.args.trainer.save_best
                                                     and acc > self.args.trainer.best_eval_result)) and self.args.device.is_master:
                 checkpoint_name = "{}_epoch{}_step{}_lr{:e}_average_loss{:.5f}_acc{:.5f}.pth".format(
                     self.experiment_name, epoch, global_step, current_lr, loss_meter.avg, acc)
                 checkpoint_path = os.path.join(self.args.trainer.save_dir, checkpoint_name)
-                # ADD记得传epoch和global_step，resume才能存
                 self.save_model(checkpoint_path, epoch=epoch, global_step=global_step, loss=loss_meter.val)
                 if acc > self.args.trainer.best_eval_result:
                     self.args.trainer.best_eval_result = acc
