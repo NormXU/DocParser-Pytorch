@@ -11,12 +11,12 @@ This is an unofficial Pytorch implementation of DocParser.
 - July 15th, update training scripts for Masked Document Reading Task and model architecture.
 
 ## How to use
-### 1. set up environment
+### 1. Set Up Environment
 ```shell
 pip install -r requirements.txt
 ```
 
-### 2. prepare dataset
+### 2. Prepare Dataset
 The dataset should be processed into the following format
 ```json
 {
@@ -37,7 +37,7 @@ The dataset should be processed into the following format
   } // a list of ocr info of filepath/filename 
 }
 ```
-### 3. start training
+### 3. Start Training
 You can start the training from ```train/train_experiment.py``` or
 
 ```shell
@@ -47,5 +47,7 @@ The training script also support ddp with huggingface/accelerate by
 ```shell
 accelerate train/train_experiment.py --config_file config/base.yaml --use_accelerate True
 ```
-### 4. notes
-The training script currently solely implements the **Masked Document Reading Step** described in the paper. The decoder weights, tokenizer and processor are borrowed from [naver-clova-ix/donut-base](https://huggingface.co/naver-clova-ix/donut-base)
+### 4. Notes
+The training script currently solely implements the **Masked Document Reading Step** described in the paper. The decoder weights, tokenizer and processor are borrowed from [naver-clova-ix/donut-base](https://huggingface.co/naver-clova-ix/donut-base). 
+
+Unfortunately, there is no DocParser pre-training weights publicly available. Simply borrowing weights from Donut-based fails to benefit DocParser on any downstream tasks. But I am working on training a pretraining DocParser based on the two-stage tasks mentioned in the paper recently. Once I successfully complete both the pretraining tasks, and achieve a well-performing model successfully, I intend to make it publicly available on the Huggingface hub. 
