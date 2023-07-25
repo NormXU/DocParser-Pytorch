@@ -13,7 +13,7 @@ This is an unofficial Pytorch implementation of DocParser.
 ## How to use
 ### 1. set up environment
 ```shell
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 2. prepare dataset
