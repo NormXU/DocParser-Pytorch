@@ -8,7 +8,8 @@ This is an unofficial Pytorch implementation of DocParser.
 </figure>
 
 ## News
-- July 15th, update training scripts for Masked Document Reading Task and model architecture.
+- **Sep 1st**, release the swin-transformer weight [here](https://drive.google.com/file/d/1EmhzE2ZaNOkbS95sHveAt6TMGV9eZWHT/view?usp=drive_link). Please note that this weight is trained with a OCR task and can only be used to initialize the swin-transformer part in the docparser during pretraining. It is NOT intended for fine-tuning in any downstream tasks.
+- **July 15th**, update training scripts for Masked Document Reading Task and model architecture.
 
 ## How to use
 ### 1. Set Up Environment
